@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AccMaster Pro | បណ្ដុំ Software និង Account គុណភាពខ្ពស់</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Kantumruy Pro', sans-serif; background-color: #f4f7fa; scroll-behavior: smooth; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .glass-header { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(226, 232, 240, 1); }
+        .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card-hover:hover { transform: translateY(-12px); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1); }
+        .cart-panel { transition: transform 0.5s cubic-bezier(0.77, 0, 0.175, 1); transform: translateX(100%); }
+        .cart-panel.open { transform: translateX(0); }
+        #chat-ui { transition: all 0.4s ease; transform: scale(0); opacity: 0; transform-origin: bottom right; }
+        #chat-ui.active { transform: scale(1); opacity: 1; }
+        .gradient-text { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .btn-gradient { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-5px); } 100% { transform: translateY(0px); } }
+        .float-anim { animation: float 3s ease-in-out infinite; }
+    </style>
+</head>
+<body class="text-slate-900">
+
+    <!-- ប្រព័ន្ធរុករក (Navigation) -->
+    <nav class="glass-header sticky top-0 z-[60] h-20 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-600 w-12 h-12 rounded-2xl text-white flex items-center justify-center shadow-lg shadow-indigo-200">
+                    <i class="fas fa-microchip text-xl"></i>
+                </div>
+                <div>
+                    <span class="text-xl font-black block leading-none tracking-tighter">ACC<span class="text-indigo-600">MASTER</span></span>
+                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em]">Khmer Automation</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <button onclick="toggleCart(true)" class="relative p-3 bg-slate-50 border border-slate-100 rounded-2xl text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition-all">
+                    <i class="fas fa-shopping-basket text-lg"></i>
+                    <span id="cart-count" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white">0</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ផ្នែក Hero -->
+    <header class="bg-white pt-16 pb-20 px-4">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="inline-flex items-center gap-2 bg-indigo-50 text-indigo-600 px-4 py-2 rounded-full text-xs font-bold mb-8">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                </span>
+                ប្រព័ន្ធស្វ័យប្រវត្តិកម្មជំនាន់ថ្មី ២០២៤
+            </div>
+            <h1 class="text-4xl md:text-7xl font-black mb-8 leading-[1.1]">
+                បង្កើនល្បឿនការងាររបស់អ្នក <br>
+                ជាមួយ <span class="gradient-text">Software ដ៏ឆ្លាតវៃ</span>
+            </h1>
+            <p class="text-slate-500 text-lg md:text-xl max-w-3xl mx-auto mb-12 leading-relaxed font-medium">
+                ដំណោះស្រាយគ្រប់គ្រង Account FB ច្រើនលើ LDPlayer, បង្កើត Mail ច្រើនភ្លាមៗ, និងកម្មវិធីជំនួយ Content Creator គ្រប់ប្រភេទ។
+            </p>
+            
+            <div class="relative max-w-2xl mx-auto group">
+                <div class="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-violet-500 rounded-[2.5rem] blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+                <div class="relative flex items-center">
+                    <i class="fas fa-search absolute left-6 text-slate-400"></i>
+                    <input type="text" id="main-search" oninput="displayProducts()" placeholder="ស្វែងរកកម្មវិធី ឬគណនីដែលអ្នកត្រូវការ..." class="w-full bg-white border border-slate-100 h-16 pl-16 pr-8 rounded-[2rem] focus:ring-4 focus:ring-indigo-100 outline-none font-medium transition-all text-sm">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ប្រភេទផលិតផល (Catalog) -->
+    <main id="catalog" class="max-w-7xl mx-auto px-4 py-16">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12">
+            <div class="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2">
+                <button onclick="filterType('All')" class="tab-btn active bg-indigo-600 text-white px-8 py-3 rounded-2xl text-sm font-bold shadow-lg shadow-indigo-100 transition-all">ទាំងអស់</button>
+                <button onclick="filterType('Software')" class="tab-btn bg-white text-slate-500 border border-slate-100 px-8 py-3 rounded-2xl text-sm font-bold hover:bg-slate-50 transition-all">Software</button>
+                <button onclick="filterType('Mail')" class="tab-btn bg-white text-slate-500 border border-slate-100 px-8 py-3 rounded-2xl text-sm font-bold hover:bg-slate-50 transition-all">Mail Tools</button>
+                <button onclick="filterType('Accounts')" class="tab-btn bg-white text-slate-500 border border-slate-100 px-8 py-3 rounded-2xl text-sm font-bold hover:bg-slate-50 transition-all">Account</button>
+            </div>
+            <div class="text-xs font-bold text-slate-400 bg-white px-5 py-3 rounded-xl border border-slate-100 flex items-center gap-2">
+                <i class="fas fa-info-circle text-indigo-500"></i>
+                រាល់ទំនិញទាំងអស់នឹងត្រូវផ្ញើជូនតាមរយៈ Telegram ភ្លាមៗ
+            </div>
+        </div>
+
+        <div id="product-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- ទំនិញនឹងត្រូវបញ្ចូលដោយ JS -->
+        </div>
+
+        <!-- ករណីរកមិនឃើញទំនិញ -->
+        <div id="not-found" class="hidden text-center py-32">
+            <i class="fas fa-box-open text-6xl text-slate-200 mb-6"></i>
+            <h3 class="text-xl font-bold text-slate-400">មិនមានទិន្នន័យដែលអ្នកស្វែងរកឡើយ</h3>
+        </div>
+    </main>
+
+    <!-- កន្ត្រកទំនិញ (Cart Drawer) -->
+    <div id="cart-overlay" onclick="toggleCart(false)" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[70] hidden"></div>
+    <div id="cart-drawer" class="cart-panel fixed inset-y-0 right-0 max-w-md w-full bg-white z-[80] shadow-2xl flex flex-col">
+        <div class="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+            <div>
+                <h2 class="text-2xl font-black">កន្ត្រកទំនិញ</h2>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">ទំនិញដែលបានជ្រើសរើស</p>
+            </div>
+            <button onclick="toggleCart(false)" class="w-12 h-12 bg-white border border-slate-200 rounded-2xl flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-all shadow-sm">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div id="cart-content" class="flex-1 overflow-y-auto p-8 space-y-6">
+            <!-- លីសទំនិញក្នុងកន្ត្រក -->
+        </div>
+
+        <div id="cart-summary" class="p-8 border-t border-slate-100 bg-white hidden">
+            <div class="flex justify-between items-end mb-8">
+                <div>
+                    <span class="text-slate-400 font-bold text-xs uppercase block mb-1">តម្លៃសរុប</span>
+                    <span id="total-price" class="text-3xl font-black text-indigo-600">$0.00</span>
+                </div>
+                <div class="text-right">
+                    <span class="text-emerald-500 font-bold text-xs"><i class="fas fa-shield-check"></i> សុវត្ថិភាព ១០០%</span>
+                </div>
+            </div>
+            <button onclick="sendOrder()" class="btn-gradient w-full text-white h-16 rounded-2xl font-bold flex items-center justify-center gap-3 hover:opacity-90 transition-all shadow-xl active:scale-95">
+                <span>កម្ម៉ង់តាម Telegram</span>
+                <i class="fab fa-telegram-plane text-xl"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- ប្រព័ន្ធ Live Chat ជាមួយ Bot -->
+    <div class="fixed bottom-6 right-6 z-[100] flex flex-col items-end">
+        <div id="chat-ui" class="bg-white w-[360px] h-[520px] rounded-[2.5rem] shadow-2xl border border-slate-100 overflow-hidden flex flex-col mb-4">
+            <div class="btn-gradient p-6 text-white flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center relative">
+                        <i class="fas fa-headset text-xl"></i>
+                        <span class="absolute -top-1 -right-1 w-4 h-4 bg-green-400 border-2 border-indigo-600 rounded-full animate-pulse"></span>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sm">ជំនួយការអតិថិជន</h4>
+                        <p class="text-[10px] opacity-80 uppercase font-black tracking-tighter">Support Bot Connected</p>
+                    </div>
+                </div>
+                <button onclick="toggleChat(false)" class="bg-white/10 hover:bg-white/20 w-8 h-8 rounded-full transition-all"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div id="chat-stream" class="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50 text-xs font-medium">
+                <div class="flex gap-2">
+                    <div class="bg-white p-4 rounded-2xl rounded-tl-none border border-slate-100 shadow-sm max-w-[85%] text-slate-600 leading-relaxed">
+                        សួស្តីបាទ! ខ្ញុំជា Bot ជំនួយការរបស់ AccMaster។ តើលោកអ្នកត្រូវការឱ្យខ្ញុំជួយអ្វីដែរ?
+                    </div>
+                </div>
+            </div>
+
+            <div id="bot-typing" class="hidden px-6 py-2 text-[10px] text-slate-400 font-bold italic">Bot កំពុងសរសេរ...</div>
+
+            <div class="p-4 bg-white border-t border-slate-100 flex gap-2">
+                <input type="text" id="chat-input" placeholder="សរសេរសាររបស់អ្នក..." class="flex-1 bg-slate-100 border-none h-14 px-6 rounded-2xl text-sm focus:ring-2 focus:ring-indigo-600 outline-none">
+                <button onclick="chatSubmit()" class="btn-gradient text-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-100 hover:opacity-90">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+
+        <button onclick="toggleChat(true)" class="float-anim w-16 h-16 btn-gradient text-white rounded-full shadow-2xl flex items-center justify-center text-2xl hover:scale-110 active:scale-95 transition-all">
+            <i class="fas fa-comment-dots" id="chat-btn-icon"></i>
+        </button>
+    </div>
+
+    <script>
+        // --- កំណត់ព័ត៌មាន Admin (Telegram) ---
+        const BOT_TOKEN = 'YOUR_BOT_TOKEN_HERE'; // ដាក់ Bot Token ពី @BotFather
+        const ADMIN_ID = 'YOUR_CHAT_ID_HERE';    // ដាក់ Chat ID របស់អ្នក
+        const TELEGRAM_USER = 'Admin_AccMaster';  // Telegram Username របស់អ្នក
+
+        // --- ទិន្នន័យទំនិញ (Products Database) ---
+        const products = [
+            { id: 1, name: 'FB Auto Control (LDPlayer)', price: 85.00, type: 'Software', icon: 'fas fa-desktop text-indigo-500', desc: 'Auto Post, Join Group, និងគ្រប់គ្រង Account ច្រើនលើ LDPlayer។' },
+            { id: 2, name: 'Mail Generator Elite', price: 45.00, type: 'Mail', icon: 'fas fa-mail-bulk text-rose-500', desc: 'បង្កើត Gmail និង Outlook ក្នុងចំនួនច្រើនដោយស្វ័យប្រវត្តិ។' },
+            { id: 3, name: 'Universal Video Downloader', price: 25.00, type: 'Software', icon: 'fas fa-cloud-download-alt text-emerald-500', desc: 'ទាញយក Video កម្រិត 4K ពីគ្រប់វេបសាយ (FB, TikTok, YT)។' },
+            { id: 4, name: 'AI Movie Story Creator', price: 65.00, type: 'Software', icon: 'fas fa-film text-amber-500', desc: 'ផលិតសាច់រឿង Movie និង Auto Edit សម្រាប់ Reels/TikTok។' },
+            { id: 5, name: 'YT Channel 1K Sub (PVA)', price: 55.00, type: 'Accounts', icon: 'fab fa-youtube text-red-600', desc: 'Channel ខ្មែរ មាន 1K Subscribers ស្រាប់ អាចរកលុយបាន។' },
+            { id: 6, name: 'FB Ads Account (Old)', price: 15.00, type: 'Accounts', icon: 'fab fa-facebook text-blue-600', desc: 'គណនីហ្វេសប៊ុកសម្រាប់រត់ Ads មាន Trust ខ្ពស់។' },
+            { id: 7, name: 'Gmail Aged 2021', price: 3.50, type: 'Mail', icon: 'fab fa-google text-slate-500', desc: 'Gmail ចាស់ៗ គុណភាពល្អ មិនងាយស្លាប់។' },
+            { id: 8, name: 'TikTok High Reach Account', price: 30.00, type: 'Accounts', icon: 'fab fa-tiktok text-black', desc: 'គណនីមាន Follower ខ្មែរស្រាប់ និងមាន View ខ្ពស់។' }
+        ];
+
+        let cart = [];
+        let currentFilter = 'All';
+
+        // --- មុខងារបង្ហាញទំនិញ ---
+        function displayProducts() {
+            const grid = document.getElementById('product-container');
+            const search = document.getElementById('main-search').value.toLowerCase();
+            const notFound = document.getElementById('not-found');
+            
+            const filtered = products.filter(p => {
+                const isMatch = p.name.toLowerCase().includes(search) || p.desc.toLowerCase().includes(search);
+                const isCat = currentFilter === 'All' || p.type === currentFilter;
+                return isMatch && isCat;
+            });
+
+            grid.innerHTML = '';
+            if(filtered.length === 0) {
+                notFound.classList.remove('hidden');
+            } else {
+                notFound.classList.add('hidden');
+                filtered.forEach(p => {
+                    grid.innerHTML += `
+                        <div class="card-hover bg-white rounded-[2.5rem] border border-slate-100 p-7 flex flex-col group">
+                            <div class="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-6 text-2xl group-hover:bg-indigo-50 transition-colors">
+                                <i class="${p.icon}"></i>
+                            </div>
+                            <span class="text-[10px] font-black uppercase text-indigo-500 tracking-widest mb-2">${p.type}</span>
+                            <h3 class="font-bold text-lg leading-tight mb-3 text-slate-800">${p.name}</h3>
+                            <p class="text-slate-400 text-xs leading-relaxed mb-8 line-clamp-2">${p.desc}</p>
+                            
+                            <div class="mt-auto flex items-center justify-between bg-slate-50 p-4 rounded-3xl">
+                                <div>
+                                    <span class="text-[10px] text-slate-400 font-bold block">PRICE</span>
+                                    <span class="text-2xl font-black text-slate-900">$${p.price.toFixed(2)}</span>
+                                </div>
+                                <button onclick="addToCart(${p.id})" class="btn-gradient text-white w-12 h-12 rounded-2xl shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>`;
+                });
+            }
+        }
+
+        function filterType(type) {
+            currentFilter = type;
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-indigo-600', 'text-white', 'shadow-lg');
+                btn.classList.add('bg-white', 'text-slate-500');
+                if(btn.innerText.includes(type) || (type === 'All' && btn.innerText.includes('ទាំងអស់'))) {
+                    btn.classList.add('active', 'bg-indigo-600', 'text-white', 'shadow-lg');
+                    btn.classList.remove('bg-white', 'text-slate-500');
+                }
+            });
+            displayProducts();
+        }
+
+        // --- មុខងារកន្ត្រកទំនិញ ---
+        function toggleCart(show) {
+            document.getElementById('cart-drawer').classList.toggle('open', show);
+            document.getElementById('cart-overlay').classList.toggle('hidden', !show);
+            if(show) renderCart();
+        }
+
+        function addToCart(id) {
+            const item = products.find(p => p.id === id);
+            const inCart = cart.find(c => c.id === id);
+            if(inCart) inCart.qty++; else cart.push({...item, qty: 1});
+            updateCartBadge();
+        }
+
+        function updateCartBadge() {
+            const count = cart.reduce((total, item) => total + item.qty, 0);
+            const badge = document.getElementById('cart-count');
+            badge.innerText = count;
+            badge.classList.toggle('hidden', count === 0);
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cart-content');
+            const summary = document.getElementById('cart-summary');
+            const totalEl = document.getElementById('total-price');
+            
+            if(cart.length === 0) {
+                container.innerHTML = `<div class="text-center py-20"><i class="fas fa-shopping-basket text-5xl text-slate-100 mb-4"></i><p class="text-slate-400 font-bold">មិនមានទំនិញក្នុងកន្ត្រក</p></div>`;
+                summary.classList.add('hidden');
+                return;
+            }
+
+            container.innerHTML = '';
+            let total = 0;
+            cart.forEach(item => {
+                total += item.price * item.qty;
+                container.innerHTML += `
+                    <div class="flex items-center gap-5 bg-slate-50 p-5 rounded-[2rem] border border-slate-100">
+                        <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shrink-0 shadow-sm">
+                            <i class="${item.icon} text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-sm mb-1 text-slate-800">${item.name}</h4>
+                            <p class="text-indigo-600 font-black text-sm">$${item.price.toFixed(2)}</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button onclick="changeQty(${item.id}, -1)" class="w-8 h-8 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-xs hover:bg-indigo-50"><i class="fas fa-minus"></i></button>
+                            <span class="font-bold text-sm">${item.qty}</span>
+                            <button onclick="changeQty(${item.id}, 1)" class="w-8 h-8 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-xs hover:bg-indigo-50"><i class="fas fa-plus"></i></button>
+                        </div>
+                    </div>`;
+            });
+            totalEl.innerText = `$${total.toFixed(2)}`;
+            summary.classList.remove('hidden');
+        }
+
+        function changeQty(id, delta) {
+            const item = cart.find(c => c.id === id);
+            item.qty += delta;
+            if(item.qty <= 0) cart = cart.filter(c => c.id !== id);
+            updateCartBadge();
+            renderCart();
+        }
+
+        function sendOrder() {
+            let msg = `🛒 *ការកម្ម៉ង់ថ្មីពីវេបសាយ*\n`;
+            msg += `━━━━━━━━━━━━━━━\n`;
+            cart.forEach(i => msg += `• ${i.name} (x${i.qty}) -> $${(i.price*i.qty).toFixed(2)}\n`);
+            msg += `━━━━━━━━━━━━━━━\n`;
+            msg += `💰 *តម្លៃសរុប: ${document.getElementById('total-price').innerText}*`;
+            
+            window.open(`https://t.me/${TELEGRAM_USER}?text=${encodeURIComponent(msg)}`, '_blank');
+            cart = [];
+            updateCartBadge();
+            toggleCart(false);
+        }
+
+        // --- មុខងារ Live Chat Bot ---
+        function toggleChat(show) {
+            const ui = document.getElementById('chat-ui');
+            const icon = document.getElementById('chat-btn-icon');
+            if(show) {
+                ui.classList.add('active');
+                icon.classList.replace('fa-comment-dots', 'fa-chevron-down');
+            } else {
+                ui.classList.remove('active');
+                icon.classList.replace('fa-chevron-down', 'fa-comment-dots');
+            }
+        }
+
+        async function chatSubmit() {
+            const input = document.getElementById('chat-input');
+            const stream = document.getElementById('chat-stream');
+            const text = input.value.trim();
+            if(!text) return;
+
+            // បង្ហាញសាររបស់ User
+            stream.innerHTML += `<div class="flex justify-end"><div class="btn-gradient text-white p-4 rounded-2xl rounded-tr-none shadow-md max-w-[85%]">${text}</div></div>`;
+            input.value = '';
+            stream.scrollTop = stream.scrollHeight;
+
+            // បង្ហាញ Typing...
+            const typing = document.getElementById('bot-typing');
+            typing.classList.remove('hidden');
+
+            // ផ្ញើទៅ Telegram API
+            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: ADMIN_ID,
+                        text: `💬 *Message from Live Chat:*\n\n"${text}"`,
+                        parse_mode: 'Markdown'
+                    })
+                });
+
+                if(res.ok) {
+                    setTimeout(() => {
+                        typing.classList.add('hidden');
+                        stream.innerHTML += `
+                        <div class="flex gap-2">
+                            <div class="bg-white p-4 rounded-2xl rounded-tl-none border border-slate-100 shadow-sm max-w-[85%] text-slate-600">
+                                សាររបស់អ្នកត្រូវបានផ្ញើជូន Admin រួចរាល់! Admin នឹងឆ្លើយតបវិញក្នុងពេលឆាប់ៗ។
+                                <a href="https://t.me/${TELEGRAM_USER}" target="_blank" class="block mt-2 text-indigo-600 font-bold border-t pt-2">ចុចទីនេះដើម្បីជជែកផ្ទាល់ →</a>
+                            </div>
+                        </div>`;
+                        stream.scrollTop = stream.scrollHeight;
+                    }, 1000);
+                }
+            } catch (e) { typing.classList.add('hidden'); }
+        }
+
+        // Enter ដើម្បីផ្ញើសារ
+        document.getElementById('chat-input').addEventListener('keydown', (e) => {
+            if(e.key === 'Enter') chatSubmit();
+        });
+
+        window.onload = displayProducts;
+    </script>
+</body>
+</html>
